@@ -1,28 +1,29 @@
 import React, { useState } from "react";
 
-function ItemForm({ onAddItem }) {
+function NewItemForm({ onAddItem }) {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("Produce");
 
   function handleSubmit(e) {
     e.preventDefault();
-    const itemData = {
-      name: name,
-      category: category,
+    const newItem = {
+      name,
+      category,
       isInCart: false,
     };
+
     fetch("http://localhost:4000/items", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(itemData),
+      body: JSON.stringify(newItem),
     })
       .then((r) => r.json())
-      .then((newItem) => {
-        onAddItem(newItem);
-        setName(""); // Reset form
-        setCategory("Produce"); // Reset to default
+      .then((data) => {
+        onAddItem(data); // ✅ Calls the correct prop
+        setName(""); // Clear the form
+        setCategory("Produce");
       });
   }
 
@@ -48,6 +49,7 @@ function ItemForm({ onAddItem }) {
           <option value="Produce">Produce</option>
           <option value="Dairy">Dairy</option>
           <option value="Dessert">Dessert</option>
+          <option value="Bakery">Bakery</option>
         </select>
       </label>
 
@@ -56,4 +58,4 @@ function ItemForm({ onAddItem }) {
   );
 }
 
-export default ItemForm;
+export default NewItemForm;

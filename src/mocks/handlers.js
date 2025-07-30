@@ -1,39 +1,44 @@
-import { rest } from "msw";
-import { data } from "./data";
+import { rest } from 'msw';
 
-let items = [...data];
-let id = items[items.length - 1].id;
+const initialItems = [
+  { id: 1, name: "Yogurt", category: "Dairy", isInCart: false },
+  { id: 2, name: "Pomegranate", category: "Produce", isInCart: false }
+];
+
+let items = [...initialItems];
+let nextId = 3;
 
 export function resetData() {
-  items = [...data];
-  id = items[items.length - 1].id;
+  items = [...initialItems];
+  nextId = 3;
 }
 
 export const handlers = [
-  rest.get("http://localhost:4000/items", (req, res, ctx) => {
+  rest.get('http://localhost:4000/items', (req, res, ctx) => {
     return res(ctx.json(items));
   }),
-  rest.post("http://localhost:4000/items", (req, res, ctx) => {
-    id++;
-    const item = { id, ...req.body };
-    items.push(item);
-    return res(ctx.json(item));
+  
+  rest.post('http://localhost:4000/items', async (req, res, ctx) => {
+    const newItem = await req.json();
+    const createdItem = { id: nextId++, ...newItem };
+    items.push(createdItem);
+    return res(ctx.json(createdItem));
   }),
-  rest.delete("http://localhost:4000/items/:id", (req, res, ctx) => {
+  
+  rest.patch('http://localhost:4000/items/:id', async (req, res, ctx) => {
     const { id } = req.params;
-    if (isNaN(parseInt(id))) {
-      return res(ctx.status(404), ctx.json({ message: "Invalid ID" }));
-    }
-    items = items.filter((q) => q.id !== parseInt(id));
-    return res(ctx.json({}));
+    const updates = await req.json();
+    const index = items.findIndex(item => item.id === Number(id));
+    
+    if (index === -1) return res(ctx.status(404));
+    
+    items[index] = { ...items[index], ...updates };
+    return res(ctx.json(items[index]));
   }),
-  rest.patch("http://localhost:4000/items/:id", (req, res, ctx) => {
+  
+  rest.delete('http://localhost:4000/items/:id', (req, res, ctx) => {
     const { id } = req.params;
-    if (isNaN(parseInt(id))) {
-      return res(ctx.status(404), ctx.json({ message: "Invalid ID" }));
-    }
-    const itemIndex = items.findIndex((item) => item.id === parseInt(id));
-    items[itemIndex] = { ...items[itemIndex], ...req.body };
-    return res(ctx.json(items[itemIndex]));
-  }),
+    items = items.filter(item => item.id !== Number(id));
+    return res(ctx.status(200));
+  })
 ];

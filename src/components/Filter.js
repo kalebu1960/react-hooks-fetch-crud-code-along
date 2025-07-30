@@ -1,11 +1,11 @@
 import React from "react";
 
-function Filter({ category, onCategoryChange }) {
+function Filter({ selectedCategory, onCategoryChange }) {
   return (
     <div className="Filter">
       <select
         name="filter"
-        value={category}
+        value={selectedCategory}
         onChange={(e) => onCategoryChange(e.target.value)}
       >
         <option value="All">Filter by category</option>
