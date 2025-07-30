@@ -27,3 +27,5 @@ yarn-error.log*
 
 # Ignore ESLint files
 .eslintcache
+node_modules
+db.json
